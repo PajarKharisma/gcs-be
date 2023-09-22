@@ -5,8 +5,8 @@ OUTPUT_VALUES = {
     'pitch': 0,
     'roll': 0,
     'yaw': 0,
-    'altitude': 0,
-    'pressure': 0
+    'lat': 0,
+    'long': 0
 }
 
 INPUT_VALUES = {
