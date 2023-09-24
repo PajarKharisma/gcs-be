@@ -25,4 +25,8 @@ class SerialThread(threading.Thread):
             self.ser.close()
             exit()
         except:
+            rawData = 'roll  : -0.65 pitch : -14.57 yaw  : 358.23 ketinggian : 82.37 latitude : -4.4725614 longitude : 105.2602768'
+            data = formatter.formatData(rawData)
+            if data is not None:
+                context.OUTPUT_VALUES = data
             print("Error")
