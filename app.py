@@ -17,5 +17,5 @@ if __name__ == "__main__":
     thrd.start()
 
     app.run(host='0.0.0.0', port=5000)
-    context.INPUT_VALUES['app_connect'] = False
+    context.VALUES['app_connect'] = False
     thrd.join()
