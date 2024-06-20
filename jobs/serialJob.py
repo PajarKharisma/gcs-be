@@ -45,3 +45,8 @@ class SerialThread(threading.Thread):
                 self.vehicle.close()
                 self.vehicle = None
             self.stop()
+
+        finally:
+            # Ensure the vehicle is disconnected when stopping
+            if self.vehicle is not None:
+                self.vehicle.close()
