@@ -3,29 +3,41 @@ from flask_cors import CORS
 import os
 import atexit
 import signal
+import logging
 from config import context
+from jobs.serialJob import SerialThread
 
 app = Flask(__name__)
 CORS(app)
 app.secret_key = os.urandom(24)
 
 from views import *
-from jobs.serialJob import SerialThread
 
-# Initialize the background thread
-thrd = SerialThread('serial_thread')
-thrd.daemon = True
-thrd.start()
+logging.basicConfig(level=logging.INFO)
 
-# Ensure the background thread stops when the application exits
+# Global variable to track the thread instance
+serial_thread = None
+
+def start_serial_thread():
+    global serial_thread
+    if serial_thread is None or not serial_thread.is_alive():
+        logging.info("Starting serial thread...")
+        serial_thread = SerialThread('serial_thread')
+        serial_thread.daemon = True
+        serial_thread.start()
+    else:
+        logging.info("Serial thread already running.")
+
+start_serial_thread()
+
 def cleanup():
-    print("Stopping background thread...")
-    thrd.stop()
-    thrd.join()
+    logging.info("Stopping background thread...")
+    if serial_thread is not None:
+        serial_thread.stop()
+        serial_thread.join()
 
 atexit.register(cleanup)
 
-# Handle signals to ensure graceful shutdown
 def handle_signal(signal, frame):
     cleanup()
     os._exit(0)

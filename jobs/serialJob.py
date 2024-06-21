@@ -2,26 +2,38 @@ import threading
 from config import context
 from dronekit import connect, VehicleMode
 import time
+import logging
 import os
 
 class SerialThread(threading.Thread):
     def __init__(self, name):
-        threading.Thread.__init__(self)
+        super().__init__()
         self.name = name
         self.vehicle = None
         self.stop_event = threading.Event()
 
     def stop(self):
-        self.stop_event.set() 
+        self.stop_event.set()
 
     def run(self):
         try:
-            print("Connecting to vehicle on: %s" % context.VALUES['port'])
-            print("Baudrate: %s" % context.VALUES['baudrate'])
+            logging.info(f"Connecting to vehicle on: {context.VALUES['port']}")
+            logging.info(f"Baudrate: {context.VALUES['baudrate']}")
             while not self.stop_event.is_set():
                 if context.VALUES['app_connect']:
                     if self.vehicle is None:
-                        self.vehicle = connect(context.VALUES['port'], baud=context.VALUES['baudrate'], wait_ready=False)
+                        try:
+                            logging.info("Attempting to connect to the vehicle...")
+                            self.vehicle = connect(context.VALUES['port'], baud=context.VALUES['baudrate'], wait_ready=False)
+                        except PermissionError as e:
+                            logging.error(f"Permission error connecting to {context.VALUES['port']}: {e}")
+                            self.stop()
+                            return
+                        except Exception as e:
+                            logging.error(f"Error connecting to {context.VALUES['port']}: {e}")
+                            self.stop()
+                            return
+
                     context.VALUES['pitch'] = self.vehicle.attitude.pitch
                     context.VALUES['roll'] = self.vehicle.attitude.roll
                     context.VALUES['yaw'] = self.vehicle.attitude.yaw
@@ -40,13 +52,14 @@ class SerialThread(threading.Thread):
                 time.sleep(0.5)
 
         except KeyboardInterrupt:
-            # Disconnect from the vehicle
+            logging.info("Keyboard interrupt received. Stopping thread.")
             if self.vehicle is not None:
                 self.vehicle.close()
                 self.vehicle = None
             self.stop()
 
         finally:
-            # Ensure the vehicle is disconnected when stopping
             if self.vehicle is not None:
                 self.vehicle.close()
+                self.vehicle = None
+            logging.info("Thread stopped.")
