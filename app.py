@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
+from flask_socketio import SocketIO
 import os
 import atexit
 import signal
@@ -8,6 +9,7 @@ from config import context
 from jobs.serialJob import SerialThread
 
 app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
 app.secret_key = os.urandom(24)
 
@@ -46,5 +48,5 @@ signal.signal(signal.SIGINT, handle_signal)
 signal.signal(signal.SIGTERM, handle_signal)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5001)
+    app.run(host='0.0.0.0', port=5001, debug=True, use_reloader=True)
     context.VALUES['app_connect'] = False
