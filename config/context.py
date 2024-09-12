@@ -1,5 +1,4 @@
-global INPUT_VALUES
-global OUTPUT_VALUES
+global VALUES
 
 VALUES = {
     # OUTPUT VALUES
@@ -8,6 +7,8 @@ VALUES = {
     'yaw': 0,
     'lat': 0,
     'long': 0,
+    'antena_lat': 0,
+    'antena_long': 0,
     'alt': 0,
     'battery': 0,
     'is_armable': False,
@@ -18,5 +19,7 @@ VALUES = {
     # INPUT VALUES
     'baudrate': 57600,
     'port': 'COM7',
-    'app_connect': False
+    'app_connect': False,
+    'antena_baudrate': 9600,
+    'antena_port': 'COM3'
 }
