@@ -77,7 +77,7 @@ class SerialThread(threading.Thread):
                 self.vehicle = None
             logging.info("Thread stopped.")
     
-    def calculate_azimuth(drone_lat, drone_lon, antenna_lat, antenna_lon):
+    def calculate_azimuth(self, drone_lat, drone_lon, antenna_lat, antenna_lon):
         drone_lat = math.radians(drone_lat)
         drone_lon = math.radians(drone_lon)
         antenna_lat = math.radians(antenna_lat)
