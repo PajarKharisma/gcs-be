@@ -21,5 +21,5 @@ VALUES = {
     'port': 'COM7',
     'app_connect': False,
     'antena_baudrate': 9600,
-    'antena_port': 'COM3'
+    'antena_port': 'COM6'
 }

@@ -7,6 +7,7 @@ import signal
 import logging
 from config import context
 from jobs.serialJob import SerialThread
+from jobs.antenaJob import AntenaThread
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -19,6 +20,7 @@ logging.basicConfig(level=logging.INFO)
 
 # Global variable to track the thread instance
 serial_thread = None
+antena_thread = None
 
 def start_serial_thread():
     global serial_thread
@@ -29,14 +31,28 @@ def start_serial_thread():
         serial_thread.start()
     else:
         logging.info("Serial thread already running.")
+    
+def start_antena_thread():
+    global antena_thread
+    if antena_thread is None or not antena_thread.is_alive():
+        logging.info("Starting antena thread...")
+        antena_thread = AntenaThread('antena_thread')
+        antena_thread.daemon = True
+        antena_thread.start()
+    else:
+        logging.info("Antena thread already running.")
 
 start_serial_thread()
+start_antena_thread()
 
 def cleanup():
     logging.info("Stopping background thread...")
     if serial_thread is not None:
         serial_thread.stop()
         serial_thread.join()
+    if antena_thread is not None:
+        antena_thread.stop()
+        antena_thread.join()
 
 atexit.register(cleanup)
 

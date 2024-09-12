@@ -13,7 +13,6 @@ class SerialThread(threading.Thread):
         self.name = name
         self.vehicle = None
         self.stop_event = threading.Event()
-        self.antena = None
 
     def stop(self):
         self.stop_event.set()
@@ -28,16 +27,12 @@ class SerialThread(threading.Thread):
                         try:
                             logging.info("Attempting to connect to the vehicle...")
                             self.vehicle = connect(context.VALUES['port'], baud=context.VALUES['baudrate'], wait_ready=False)
-                            logging.info('Attempting to connect to the antena...')
-                            self.antena = serial.Serial(context.VALUES['antena_port'], context.VALUES['antena_baudrate'], timeout=1)
                         except PermissionError as e:
                             logging.error(f"Permission error connecting to {context.VALUES['port']}: {e}")
-                            logging.error(f"Permission error connecting to {context.VALUES['antena_port']}: {e}")
                             self.stop()
                             return
                         except Exception as e:
                             logging.error(f"Error connecting to {context.VALUES['port']}: {e}")
-                            logging.error(f"Error connecting to {context.VALUES['antena_port']}: {e}")
                             self.stop()
                             return
 
@@ -52,16 +47,10 @@ class SerialThread(threading.Thread):
                     context.VALUES['system_status'] = self.vehicle.system_status.state
                     context.VALUES['mode'] = self.vehicle.mode.name
                     context.VALUES['last_heartbeat'] = self.vehicle.last_heartbeat
-
-                    azimuth = self.calculate_azimuth(context.VALUES['lat'], context.VALUES['long'], context.VALUES['antena_lat'], context.VALUES['antena_long'])
-                    self.antena.write(str(azimuth).encode())
                 else:
                     if self.vehicle is not None:
                         self.vehicle.close()
                         self.vehicle = None
-                    if self.antena is not None:
-                        self.antena.close()
-                        self.antena = None
                 time.sleep(0.5)
 
         except KeyboardInterrupt:
@@ -76,19 +65,3 @@ class SerialThread(threading.Thread):
                 self.vehicle.close()
                 self.vehicle = None
             logging.info("Thread stopped.")
-    
-    def calculate_azimuth(self, drone_lat, drone_lon, antenna_lat, antenna_lon):
-        drone_lat = math.radians(drone_lat)
-        drone_lon = math.radians(drone_lon)
-        antenna_lat = math.radians(antenna_lat)
-        antenna_lon = math.radians(antenna_lon)
-        
-        delta_lon = drone_lon - antenna_lon
-        x = math.sin(delta_lon) * math.cos(drone_lat)
-        y = math.cos(antenna_lat) * math.sin(drone_lat) - (math.sin(antenna_lat) * math.cos(drone_lat) * math.cos(delta_lon))
-        
-        azimuth = math.atan2(x, y)
-        azimuth = math.degrees(azimuth)
-        azimuth = (azimuth + 360) % 360  # Menjaga agar azimuth tetap dalam rentang 0-360 derajat
-        
-        return azimuth
