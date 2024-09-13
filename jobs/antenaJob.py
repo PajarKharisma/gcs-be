@@ -36,11 +36,10 @@ class AntenaThread(threading.Thread):
                             self.stop()
                             return
                     bearing = self.calculate_bearing(context.VALUES['antena_lat'], context.VALUES['antena_long'], context.VALUES['lat'], context.VALUES['long'])
-                    logging.info(f"Antena bearing is: {bearing}")
                     direction = self.closest_cardinal_direction(bearing)
-                    logging.info(f"Antena direction is: {direction}")
                     if (self.previous_direction != direction):
                         movement = direction - self.previous_direction
+                        logging.info(f"Antena Movement: {movement}")
                         self.antena.write(str(movement).encode())
                         self.previous_direction = direction
                 else:

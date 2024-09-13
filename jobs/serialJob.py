@@ -42,7 +42,7 @@ class SerialThread(threading.Thread):
                     context.VALUES['alt'] = self.vehicle.location.global_relative_frame.alt
                     context.VALUES['lat'] = self.vehicle.location.global_relative_frame.lat
                     context.VALUES['long'] = self.vehicle.location.global_relative_frame.lon
-                    context.VALUES['battery'] = 0 if self.vehicle.battery is None else self.vehicle.battery.level
+                    context.VALUES['battery'] = 0 if self.vehicle.battery is None else self.vehicle.battery.voltage
                     context.VALUES['is_armable'] = self.vehicle.is_armable
                     context.VALUES['system_status'] = self.vehicle.system_status.state
                     context.VALUES['mode'] = self.vehicle.mode.name
