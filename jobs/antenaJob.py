@@ -62,19 +62,35 @@ class AntenaThread(threading.Thread):
                 self.antena = None
             logging.info("Thread stopped.")
     
-    def degrees_to_radians(self, degrees):
-        return degrees * math.pi / 180
 
     def calculate_bearing(self, lat1, lon1, lat2, lon2):
-        lat1 = self.degrees_to_radians(lat1)
-        lon1 = self.degrees_to_radians(lat1)
-        lat2 = self.degrees_to_radians(lat2)
-        lon2 = self.degrees_to_radians(lon2)
-        d_lon = lon2 - lon1
-        x = math.sin(d_lon) * math.cos(lat2)
-        y = math.cos(lat1) * math.sin(lat2) - (math.sin(lat1) * math.cos(lat2) * math.cos(d_lon))
+        """
+        Calculate the bearing between two points.
+        
+        Parameters:
+        lat1, lon1: Latitude and Longitude of the first point (antenna)
+        lat2, lon2: Latitude and Longitude of the second point (drone)
+        
+        Returns:
+        Bearing in degrees from the first point to the second point.
+        """
+        # Convert latitude and longitude from degrees to radians
+        lat1 = math.radians(lat1)
+        lon1 = math.radians(lon1)
+        lat2 = math.radians(lat2)
+        lon2 = math.radians(lon2)
+        
+        dlon = lon2 - lon1
+        
+        x = math.sin(dlon) * math.cos(lat2)
+        y = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(dlon)
+        
         initial_bearing = math.atan2(x, y)
+        
+        # Convert bearing from radians to degrees
         initial_bearing = math.degrees(initial_bearing)
+        
+        # Normalize the bearing to 0-360 degrees
         compass_bearing = (initial_bearing + 360) % 360
         
         return compass_bearing
